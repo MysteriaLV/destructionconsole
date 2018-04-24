@@ -4,6 +4,9 @@
  * Add extra initialization code
  */
 
+#define w_bit_is_set(sfr, bit) (_SFR_WORD(sfr) & _BV(bit))
+#define w_bit_is_clear(sfr, bit) (!(_SFR_WORD(sfr) & _BV(bit)))
+
 #define NUM_BUTTONS 16
 
 Atm_mcp_input &Atm_mcp_input::begin(uint8_t i2c_addr) {
@@ -53,10 +56,10 @@ void Atm_mcp_input::action(int id) {
 			currentState = mcp.readGPIOAB();
 
 			for (byte i = 0; i < NUM_BUTTONS; i++) {
-				if (bit_is_clear(lastState, i) && bit_is_set(currentState, i)) {
+				if (w_bit_is_clear(lastState, i) && w_bit_is_set(currentState, i)) {
 					push(connectors, ON_RELEASE, 0, i, 0);
 				}
-				if (bit_is_set(lastState, i) && bit_is_clear(currentState, i))
+				if (w_bit_is_set(lastState, i) && w_bit_is_clear(currentState, i))
 				{
 					push( connectors, ON_PRESS, 0, i, 0);
 				}
