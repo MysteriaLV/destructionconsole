@@ -1,8 +1,5 @@
 #include "relay_box_modbus.h"
 
-#define RELAY_OFF HIGH
-#define RELAY_ON LOW
-
 #ifdef USE_SOFTWARE_SERIAL
 #include <ModbusSerial.h>
 ModbusSerial mb;
@@ -51,7 +48,7 @@ void process_actions() {
 
 	switch (mb.Hreg(ACTIONS)) {
 		case 1 : // Put here code for Reset
-			Serial.println("[Reset] action fired");
+			Serial.println(F("[Reset] action fired"));
 			digitalWrite(LED_BUILTIN, HIGH);
 		default:
 			break;
@@ -64,7 +61,7 @@ void process_actions() {
 /////////////////////////////////////////////////////////////////
 
 void modbus_setup() {
-	Serial.println("ModBus Slave RELAY_BOX:4 for lua/Aliens.lua");
+	Serial.println(F("ModBus Slave RELAY_BOX:4 for lua/Aliens.lua"));
 
 #ifdef EMULATE_RS3485_POWER_PINS
 	pinMode(SSerialVCC, OUTPUT);

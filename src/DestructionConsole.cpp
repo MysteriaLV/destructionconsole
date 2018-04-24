@@ -1,30 +1,29 @@
 #include <Arduino.h>
 #include "relay_box_modbus.h"
-#include "Adafruit_MCP23017.h"
+#include "Atm_mcp_input.h"
+#include "freeMemory.h"
 
-Adafruit_MCP23017 mcp0;
-Adafruit_MCP23017 mcp1;
+#define MCP_COUNT 8
+
+Atm_mcp_input mcp[MCP_COUNT];
+Atm_led led;
 
 void setup() {
 	Serial.begin(115200);
+	Serial.println(freeMemory());
+
 	modbus_setup();
+	led.begin(LED_BUILTIN);
 
-	mcp0.begin(0);
-	mcp1.begin(1);
-
-	mcp1.pinMode(0, INPUT);
-	mcp1.pullUp(0, HIGH);  // turn on a 100K pullup internally
-
-	pinMode(LED_BUILTIN, OUTPUT);  // use the p13 LED as debugging
-	mcp0.pinMode(0, OUTPUT);
+	for (uint8_t i = 0; i < MCP_COUNT; i++) {
+		Serial.println(i);
+		mcp[i].begin(i)
+				.onPress(led, Atm_led::EVT_ON)
+				.onRelease(led, Atm_led::EVT_OFF);
+	}
 }
 
 void loop() {
 	modbus_loop();
 	automaton.run();
-
-	// The LED will 'echo' the button
-	digitalWrite(LED_BUILTIN, mcp1.digitalRead(0));
-	mcp0.digitalWrite(0, mcp1.digitalRead(0));
 }
-
