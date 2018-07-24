@@ -61,7 +61,7 @@ void process_actions() {
 /////////////////////////////////////////////////////////////////
 
 void modbus_setup() {
-	Serial.println(F("ModBus Slave RELAY_BOX:4 for lua/Aliens.lua"));
+	Serial.println(F("ModBus Slave CHANGEME DESTR:7 for lua/Aliens.lua"));
 
 #ifdef EMULATE_RS3485_POWER_PINS
 	pinMode(SSerialVCC, OUTPUT);
@@ -73,10 +73,10 @@ void modbus_setup() {
 
 #ifndef USE_ESP8266_TCP
 	mb.config(&RS485Serial, 31250, SSerialTxControl);
-	mb.setSlaveId(44);
+	mb.setSlaveId(7);
 #else
 	mb.config("Aliens", "123123");
-	WiFi.config(IPAddress(4), IPAddress(), IPAddress(), IPAddress(), IPAddress());
+	WiFi.config(IPAddress(7), IPAddress(), IPAddress(), IPAddress(), IPAddress());
 
 	Serial.print("Connecting to Aliens ");
 	while (WiFi.status() != WL_CONNECTED) {
@@ -86,8 +86,7 @@ void modbus_setup() {
 
 	Serial.println(" CONNECTED!");
 	Serial.print("IP address: ");
-	Serial.println(WiFi.localIP());
-
+	Serial.println(WiFi.localIP()
 	Serial.print("Netmask: ");
 	Serial.println(WiFi.subnetMask());
 
