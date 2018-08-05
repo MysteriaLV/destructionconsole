@@ -1,7 +1,9 @@
-#include "relay_box_modbus.h"
+#include "destruction_console_modbus.h"
 
 #ifdef USE_SOFTWARE_SERIAL
+
 #include <ModbusSerial.h>
+
 ModbusSerial mb;
 
 #define SSerialGND       10
@@ -21,7 +23,7 @@ ModbusSerial mb;
 #define SSerialTxControl 6   //RS485 Direction control
 #define SSerialRX        8  //Serial Receive pin
 #define SSerialTX        9  //Serial Transmit pin
-AltSoftSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
+	AltSoftSerial RS485Serial(111, 222); // RX, TX hardcoded
 #endif
 
 #ifdef USE_SERIAL1
@@ -48,8 +50,14 @@ void process_actions() {
 
 	switch (mb.Hreg(ACTIONS)) {
 		case 1 : // Put here code for Reset
-			Serial.println(F("[Reset] action fired"));
-			digitalWrite(LED_BUILTIN, HIGH);
+			Serial.println("[Reset] action fired");
+			break;
+		case 2 : // Put here code for Activated
+			Serial.println("[Activated] action fired");
+			break;
+		case 3 : // Put here code for Force_complete
+			Serial.println("[Force_complete] action fired");
+			break;
 		default:
 			break;
 	}
@@ -58,10 +66,12 @@ void process_actions() {
 	mb.Hreg(ACTIONS, 0);
 }
 
-/////////////////////////////////////////////////////////////////
+void modbus_set(word event, word value) {
+	mb.Hreg(event, value);
+}
 
 void modbus_setup() {
-	Serial.println(F("ModBus Slave RELAY_BOX:4 for lua/Aliens.lua"));
+	Serial.println("ModBus Slave DESTRUCTION_CONSOLE:7 for lua/Aliens.lua");
 
 #ifdef EMULATE_RS3485_POWER_PINS
 	pinMode(SSerialVCC, OUTPUT);
@@ -73,35 +83,39 @@ void modbus_setup() {
 
 #ifndef USE_ESP8266_TCP
 	mb.config(&RS485Serial, 31250, SSerialTxControl);
-	mb.setSlaveId(44);
+	mb.setSlaveId(7);
 #else
-	mb.config("Aliens", "123123");
-	WiFi.config(IPAddress(4), IPAddress(), IPAddress(), IPAddress(), IPAddress());
+	mb.config("Aliens Room", "123123123");
+	WiFi.config(IPAddress(7), IPAddress(), IPAddress(), IPAddress(), IPAddress());
 
-	Serial.print("Connecting to Aliens ");
-	while (WiFi.status() != WL_CONNECTED) {
-	  delay(500);
-	  Serial.print(".");
-	}
+	Serial.print("Connecting to Aliens Room ");
+	  while (WiFi.status() != WL_CONNECTED) {
+		delay(500);
+		Serial.print(".");
+	  }
 
-	Serial.println(" CONNECTED!");
-	Serial.print("IP address: ");
-	Serial.println(WiFi.localIP());
+	  Serial.println(" CONNECTED!");
+	  Serial.print("IP address: ");
+	  Serial.println(WiFi.localIP());
 
-	Serial.print("Netmask: ");
-	Serial.println(WiFi.subnetMask());
+	  Serial.print("Netmask: ");
+	  Serial.println(WiFi.subnetMask());
 
-	Serial.print("Gateway: ");
-	Serial.println(WiFi.gatewayIP());
+	  Serial.print("Gateway: ");
+	  Serial.println(WiFi.gatewayIP());
 #endif
 
 	mb.addHreg(ACTIONS, 0);
+	mb.addHreg(ENTERED_CODE, 0);
 
-	pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output (D4)
 }
 
 
 void modbus_loop() {
 	mb.task();              // not implemented yet: mb.Hreg(TOTAL_ERRORS, mb.task());
 	process_actions();
+
+	// Notify main console of local events
+	// mb.Hreg(ENTERED_CODE, 1);
+
 }
