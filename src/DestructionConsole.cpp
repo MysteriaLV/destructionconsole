@@ -10,7 +10,7 @@ Atm_mcp_input mcp_input[MCP_IN_COUNT];
 //Atm_mcp_output mcp4;
 //Atm_mcp_output mcp5;
 
-Atm_led led;
+Atm_led led, door, alarm_lights, backlight;
 Adafruit_MCP23017 mcp4;
 Adafruit_MCP23017 mcp5;
 Adafruit_MCP23017 mcp6;
@@ -23,6 +23,13 @@ void setup() {
 
     modbus_setup();
     led.begin(LED_BUILTIN);
+
+    door.begin(12)
+            .blink(1000, 10000).start();
+    alarm_lights.begin(4)
+            .blink(10000, 3000).start();
+    backlight.begin(11)
+            .blink(1000, 1000).start();
 
     for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
         Serial.println(i);
