@@ -4,16 +4,18 @@
 #include "Atm_mcp_output.h"
 #include "freeMemory.h"
 
-#define MCP_COUNT 3
+#define MCP_IN_COUNT 4
 
-Atm_mcp_input mcp[MCP_COUNT];
-Atm_mcp_output mcp3;
-Atm_mcp_output mcp6;
+Atm_mcp_input mcp_input[MCP_IN_COUNT];
+//Atm_mcp_output mcp4;
+//Atm_mcp_output mcp5;
 
 Atm_led led;
-Adafruit_MCP23017 mcp7;
+Adafruit_MCP23017 mcp4;
+Adafruit_MCP23017 mcp5;
+Adafruit_MCP23017 mcp6;
 Atm_timer countdown;
-bool isEven = false;
+uint8_t ledId = 0;
 
 void setup() {
     Serial.begin(115200);
@@ -22,44 +24,56 @@ void setup() {
     modbus_setup();
     led.begin(LED_BUILTIN);
 
-    for (uint8_t i = 0; i < MCP_COUNT; i++) {
+    for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
         Serial.println(i);
-        mcp[i].begin(i)
+        mcp_input[i].begin(i)
                 .onPress(led, Atm_led::EVT_ON)
                 .onRelease(led, Atm_led::EVT_OFF);
     }
 
-    mcp7.begin(7);
-    for (uint8_t i = 0; i < 16; i++) {
-        mcp7.pinMode(i, OUTPUT);
-    }
+    Serial.println(4);
+    mcp4.begin(4);
 
-    mcp3.begin(3);
-//            .trace(Serial);
+    Serial.println(5);
+    mcp5.begin(5);
+
+    Serial.println(6);
     mcp6.begin(6);
 
-    countdown.begin(1000) // Each step takes 1 second
+    for (uint8_t i = 0; i < 16; i++) {
+        mcp4.pinMode(i, OUTPUT);
+        mcp5.pinMode(i, OUTPUT);
+        mcp6.pinMode(i, OUTPUT);
+
+        mcp4.digitalWrite(i, HIGH);
+        mcp5.digitalWrite(i, HIGH);
+        mcp6.digitalWrite(i, HIGH);
+    }
+
+    countdown.begin(200) // Each step takes 1 second
             .repeat(ATM_COUNTER_OFF) // Set to 70 seconds
             .onTimer([](int idx, int v, int up) {
-                if (isEven) {
-                    mcp3.update(0xff);
-                    mcp6.update(0x0);
-                } else {
-                    mcp3.update(0x0);
-                    mcp6.update(0xff);
-                }
+                uint8_t newLed = (ledId + 1) % 16;
 
-                for (uint8_t i = 0; i < 16; i = i + 2) {
-                    mcp7.digitalWrite(i, isEven);
-                }
-                for (uint8_t i = 1; i < 16; i = i + 2) {
-                    mcp7.digitalWrite(i, !isEven);
-                }
-                isEven = !isEven;
-                led.toggle();
+                mcp4.digitalWrite(newLed, HIGH);
+                mcp5.digitalWrite(newLed, HIGH);
+                mcp6.digitalWrite(newLed, HIGH);
+
+                mcp4.digitalWrite(ledId, LOW);
+                mcp5.digitalWrite(ledId, LOW);
+                mcp6.digitalWrite(ledId, LOW);
+
+                ledId = newLed;
+//                led.toggle();
             })
-//            .trace(Serial)
             .start();
+
+    Serial.println("...setup done");
+
+    for (int i = 1; i < 20; i++) {
+        led.toggle();
+        delay(50);
+    }
 }
 
 void loop() {
