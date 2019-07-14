@@ -50,13 +50,13 @@ void process_actions() {
 
 	switch (mb.Hreg(ACTIONS)) {
 		case 1 : // Put here code for Reset
-			Serial.println("[Reset] action fired");
+//			Serial.println("[Reset] action fired");
 			break;
 		case 2 : // Put here code for Activated
-			Serial.println("[Activated] action fired");
+//			Serial.println("[Activated] action fired");
 			break;
 		case 3 : // Put here code for Force_complete
-			Serial.println("[Force_complete] action fired");
+//			Serial.println("[Force_complete] action fired");
 			break;
 		default:
 			break;
@@ -71,7 +71,7 @@ void modbus_set(word event, word value) {
 }
 
 void modbus_setup() {
-	Serial.println("ModBus Slave DESTRUCTION_CONSOLE:7 for lua/Aliens.lua");
+	Serial.println("DESTRUCTION_CONSOLE:7");
 
 #ifdef EMULATE_RS3485_POWER_PINS
 	pinMode(SSerialVCC, OUTPUT);

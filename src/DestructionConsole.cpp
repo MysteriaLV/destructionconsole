@@ -24,19 +24,9 @@ void setup() {
     modbus_setup();
     led.begin(LED_BUILTIN);
 
-    door.begin(12)
-            .blink(1000, 10000).start();
-    alarm_lights.begin(4)
-            .blink(10000, 3000).start();
-    backlight.begin(11)
-            .blink(1000, 1000).start();
-
-    for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
-        Serial.println(i);
-        mcp_input[i].begin(i)
-                .onPress(led, Atm_led::EVT_ON)
-                .onRelease(led, Atm_led::EVT_OFF);
-    }
+    door.begin(12, false).off();
+    alarm_lights.begin(4).off();
+    backlight.begin(11).off();
 
     Serial.println(4);
     mcp4.begin(4);
@@ -57,6 +47,19 @@ void setup() {
         mcp6.digitalWrite(i, HIGH);
     }
 
+#ifdef MY_TEST_MODE
+    door.blink(1000, 10000).start();
+    alarm_lights.blink(10000, 3000).start();
+    backlight.blink(1000, 1000).start();
+
+
+    for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
+        Serial.println(i);
+        mcp_input[i].begin(i)
+                .onPress(led, Atm_led::EVT_ON)
+                .onRelease(led, Atm_led::EVT_OFF);
+    }
+
     countdown.begin(200) // Each step takes 1 second
             .repeat(ATM_COUNTER_OFF) // Set to 70 seconds
             .onTimer([](int idx, int v, int up) {
@@ -74,6 +77,7 @@ void setup() {
 //                led.toggle();
             })
             .start();
+#endif
 
     Serial.println("...setup done");
 
