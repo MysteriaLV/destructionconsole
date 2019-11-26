@@ -18,9 +18,9 @@ uint8_t ledId = 0;
 
 byte button_led_mappings[][16] = {
         {W(0, 0), W(0, 1), W(0, 2), W(0, 3), W(0, 4),/*5*/W(0, 5), W(0, 6), W(0, 7), W(0, 8), W(0, 9),/*10*/W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 0
-        {W(0, 0), W(0, 1), W(0, 2), W(0, 3), W(0, 4),     W(0, 5), W(0, 6), W(0, 7), W(0, 8), W(0, 9),      W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 1
-        {W(0, 0), W(0, 1), W(0, 2), W(0, 3), W(0, 4),     W(0, 5), W(0, 6), W(0, 7), W(0, 8), W(0, 9),      W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 2
-        {W(0, 0), W(0, 1), W(0, 2), W(0, 3), W(0, 4),     W(5, 12), W(0, 6), W(0, 7), W(0, 8), W(0, 9),      W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 2
+        {W(4, 6), W(0, 1), W(0, 2), W(4, 7), W(0, 4),     W(4, 2), W(4, 3), W(0, 7), W(4, 12), W(0, 9),      W(4, 5), W(4, 4), W(6, 0), W(0, 13), W(4, 0), W(6, 0)},// 1
+        {W(5, 9), W(5, 10), W(5, 0), W(5, 8), W(5, 11),     W(5, 12), W(5, 3), W(5, 7), W(0, 8), W(5, 2),      W(5, 1), W(0, 11), W(0, 12), W(0, 13), W(5, 5), W(5, 6)},// 2
+        {W(0, 0), W(3, 0), W(5, 13), W(0, 3), W(0, 4),     W(4, 7), W(6, 1), W(0, 7), W(0, 8), W(6, 3),      W(0, 10), W(3, 0), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 2
 };
 
 Adafruit_MCP23017 mcp_by_idx(byte idx) {
@@ -38,10 +38,10 @@ Adafruit_MCP23017 mcp_by_idx(byte idx) {
 
 void process_button(int idx, int button, int up) {
     byte wMapping = button_led_mappings[idx][button];
-//    Serial.println(idx);
-//    Serial.println(button);
-//    Serial.println((byte) wMapping / 16);
-//    Serial.println(wMapping % 16);
+   Serial.println(idx);
+   Serial.println(button);
+   Serial.println((byte) wMapping / 16);
+   Serial.println(wMapping % 16);
     mcp_by_idx((byte) wMapping / 16).digitalWrite(wMapping % 16, static_cast<uint8_t>(up));
 }
 
