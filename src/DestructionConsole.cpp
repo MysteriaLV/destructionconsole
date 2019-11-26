@@ -1,14 +1,13 @@
 #include <Arduino.h>
 #include "destruction_console_modbus.h"
 #include "Atm_mcp_input.h"
-#include "Atm_mcp_output.h"
 #include "freeMemory.h"
 
 #define MCP_IN_COUNT 4
 
+// IN: 5:12 - OUT: 2:5
+
 Atm_mcp_input mcp_input[MCP_IN_COUNT];
-//Atm_mcp_output mcp4;
-//Atm_mcp_output mcp5;
 
 Atm_led led, door, alarm_lights, backlight;
 Adafruit_MCP23017 mcp4;
@@ -16,6 +15,35 @@ Adafruit_MCP23017 mcp5;
 Adafruit_MCP23017 mcp6;
 Atm_timer countdown;
 uint8_t ledId = 0;
+
+byte button_led_mappings[][16][2] = {
+        {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4},/*6*/{0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},/*11*/{0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},// 0
+        {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4},     {0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},      {0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},// 1
+        {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {5, 12},    {0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},      {0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},// 2
+    //    {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4},     {0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},      {0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},// 3
+};
+
+Adafruit_MCP23017 mcp_by_idx(byte idx) {
+    switch (idx) {
+        case 4:
+            return mcp4;
+        case 5:
+            return mcp5;
+        case 6:
+            return mcp6;
+    }
+}
+
+void process_button(int idx, int button, int up) {
+    byte mcp = button_led_mappings[idx][button][0];
+    byte led = button_led_mappings[idx][button][0];
+    Serial.println(idx);
+    Serial.println(button);
+    Serial.println(mcp);
+    Serial.println(led);
+    mcp_by_idx(mcp).digitalWrite(led, static_cast<uint8_t>(up));
+}
+
 
 void setup() {
     Serial.begin(115200);
@@ -46,6 +74,14 @@ void setup() {
         mcp5.digitalWrite(i, HIGH);
         mcp6.digitalWrite(i, HIGH);
     }
+
+//    for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
+//        Serial.println(i);
+//        mcp_input[i].begin(i)
+//                .onPress(process_button, i)
+//                .onRelease(process_button, i);
+//    }
+
 
 #ifdef MY_TEST_MODE
     door.blink(1000, 10000).start();
@@ -79,7 +115,7 @@ void setup() {
             .start();
 #endif
 
-    Serial.println("...setup done");
+     Serial.println(F("...setup done"));
 
     for (int i = 1; i < 20; i++) {
         led.toggle();

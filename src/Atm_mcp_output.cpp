@@ -91,6 +91,7 @@ Atm_mcp_output &Atm_mcp_output::updateBit(uint8_t bit, bool value) {
  * Sets the symbol table and the default logging method for serial monitoring
  */
 
+/*
 Atm_mcp_output &Atm_mcp_output::trace(Stream &stream) {
     Machine::setTrace(&stream, atm_serial_debug::trace,
                       "MCP_OUTPUT\0EVT_UPDATE\0ELSE\0IDLE\0UPDATED");
@@ -98,4 +99,5 @@ Atm_mcp_output &Atm_mcp_output::trace(Stream &stream) {
 }
 
 
+*/
 

@@ -78,7 +78,7 @@ void modbus_set(word event, word value) {
 }
 
 void modbus_setup() {
-	Serial.println("DESTRUCTION_CONSOLE:7");
+	Serial.println(F("DESTRUCTION_CONSOLE:7"));
 
 #ifdef EMULATE_RS3485_POWER_PINS
 	pinMode(SSerialVCC, OUTPUT);

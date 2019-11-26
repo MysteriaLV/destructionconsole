@@ -61,7 +61,7 @@ void Atm_mcp_input::action(int id) {
 				}
 				if (w_bit_is_set(lastState, i) && w_bit_is_clear(currentState, i))
 				{
-					push( connectors, ON_PRESS, 0, i, 0);
+					push( connectors, ON_PRESS, 0, i, 1);
 				}
 			}
 			return;
