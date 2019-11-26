@@ -51,12 +51,19 @@ void process_actions() {
 	switch (mb.Hreg(ACTIONS)) {
 		case 1 : // Put here code for Reset
 //			Serial.println("[Reset] action fired");
+            door.off();
+            alarm_lights.off();
+            backlight.off();
 			break;
 		case 2 : // Put here code for Activated
 //			Serial.println("[Activated] action fired");
+            door.on();
+            alarm_lights.off();
+            backlight.on();
 			break;
 		case 3 : // Put here code for Force_complete
 //			Serial.println("[Force_complete] action fired");
+            alarm_lights.on();
 			break;
 		default:
 			break;
@@ -107,7 +114,6 @@ void modbus_setup() {
 
 	mb.addHreg(ACTIONS, 0);
 	mb.addHreg(ENTERED_CODE, 0);
-
 }
 
 
