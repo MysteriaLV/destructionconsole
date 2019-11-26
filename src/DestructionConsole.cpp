@@ -5,8 +5,6 @@
 
 #define MCP_IN_COUNT 4
 
-// IN: 5:12 - OUT: 2:5
-
 Atm_mcp_input mcp_input[MCP_IN_COUNT];
 
 Atm_led led, door, alarm_lights, backlight;
@@ -16,11 +14,13 @@ Adafruit_MCP23017 mcp6;
 Atm_timer countdown;
 uint8_t ledId = 0;
 
-byte button_led_mappings[][16][2] = {
-        {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4},/*6*/{0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},/*11*/{0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},// 0
-        {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4},     {0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},      {0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},// 1
-        {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {5, 12},    {0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},      {0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},// 2
-    //    {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4},     {0, 5}, {0, 6}, {0, 7}, {0, 8}, {0, 9},      {0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},// 3
+#define W(idx, button) ((idx)*16 + (button))
+
+byte button_led_mappings[][16] = {
+        {W(0, 0), W(0, 1), W(0, 2), W(0, 3), W(0, 4),/*5*/W(0, 5), W(0, 6), W(0, 7), W(0, 8), W(0, 9),/*10*/W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 0
+        {W(0, 0), W(0, 1), W(0, 2), W(0, 3), W(0, 4),     W(0, 5), W(0, 6), W(0, 7), W(0, 8), W(0, 9),      W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 1
+        {W(0, 0), W(0, 1), W(0, 2), W(0, 3), W(0, 4),     W(0, 5), W(0, 6), W(0, 7), W(0, 8), W(0, 9),      W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 2
+        {W(0, 0), W(0, 1), W(0, 2), W(0, 3), W(0, 4),     W(5, 12), W(0, 6), W(0, 7), W(0, 8), W(0, 9),      W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 2
 };
 
 Adafruit_MCP23017 mcp_by_idx(byte idx) {
@@ -31,17 +31,18 @@ Adafruit_MCP23017 mcp_by_idx(byte idx) {
             return mcp5;
         case 6:
             return mcp6;
+        default:
+            return mcp4;
     }
 }
 
 void process_button(int idx, int button, int up) {
-    byte mcp = button_led_mappings[idx][button][0];
-    byte led = button_led_mappings[idx][button][0];
+    byte wMapping = button_led_mappings[idx][button];
     Serial.println(idx);
     Serial.println(button);
-    Serial.println(mcp);
-    Serial.println(led);
-    mcp_by_idx(mcp).digitalWrite(led, static_cast<uint8_t>(up));
+    Serial.println((byte) wMapping / 16);
+    Serial.println(wMapping % 16);
+    mcp_by_idx((byte) wMapping / 16).digitalWrite(wMapping % 16, static_cast<uint8_t>(up));
 }
 
 
@@ -75,12 +76,12 @@ void setup() {
         mcp6.digitalWrite(i, HIGH);
     }
 
-//    for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
-//        Serial.println(i);
-//        mcp_input[i].begin(i)
-//                .onPress(process_button, i)
-//                .onRelease(process_button, i);
-//    }
+    for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
+        Serial.println(i);
+        mcp_input[i].begin(i)
+                .onPress(process_button, i)
+                .onRelease(process_button, i);
+    }
 
 
 #ifdef MY_TEST_MODE
@@ -115,7 +116,7 @@ void setup() {
             .start();
 #endif
 
-     Serial.println(F("...setup done"));
+    Serial.println(F("...setup done"));
 
     for (int i = 1; i < 20; i++) {
         led.toggle();
