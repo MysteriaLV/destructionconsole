@@ -38,10 +38,10 @@ Adafruit_MCP23017 mcp_by_idx(byte idx) {
 
 void process_button(int idx, int button, int up) {
     byte wMapping = button_led_mappings[idx][button];
-    Serial.println(idx);
-    Serial.println(button);
-    Serial.println((byte) wMapping / 16);
-    Serial.println(wMapping % 16);
+//    Serial.println(idx);
+//    Serial.println(button);
+//    Serial.println((byte) wMapping / 16);
+//    Serial.println(wMapping % 16);
     mcp_by_idx((byte) wMapping / 16).digitalWrite(wMapping % 16, static_cast<uint8_t>(up));
 }
 
