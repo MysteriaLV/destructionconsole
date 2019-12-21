@@ -50,6 +50,12 @@ void puzzle_init(int idx, int v, int up) {
     alarm_lights.off();
     backlight.off();
     button_seq_position = 0;
+
+    for (uint8_t i = 0; i < 16; i++) {
+        mcp4.digitalWrite(i, LOW);
+        mcp5.digitalWrite(i, LOW);
+        mcp6.digitalWrite(i, LOW);
+    }
 }
 
 void puzzle_activated(int idx, int v, int up) {
@@ -155,10 +161,6 @@ void setup() {
         mcp4.pinMode(i, OUTPUT);
         mcp5.pinMode(i, OUTPUT);
         mcp6.pinMode(i, OUTPUT);
-
-        mcp4.digitalWrite(i, LOW);
-        mcp5.digitalWrite(i, LOW);
-        mcp6.digitalWrite(i, LOW);
     }
 
     for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
