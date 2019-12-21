@@ -112,11 +112,12 @@ Atm_mcp_button &Atm_mcp_button::onRelease(atm_cb_push_t callback, int idx) {
  * Sets the symbol table and the default logging method for serial monitoring
  */
 
+/*
 Atm_mcp_button &Atm_mcp_button::trace(Stream &stream) {
 	Machine::setTrace(&stream, atm_serial_debug::trace,
 	                  "MCP_BUTTON\0EVT_PRESS\0EVT_RELEASE\0ELSE\0IDLE\0PRESSED\0RELEASE");
 	return *this;
 }
-
+*/
 
 
