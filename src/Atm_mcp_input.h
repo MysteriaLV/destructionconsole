@@ -24,7 +24,7 @@ class Atm_mcp_input: public Machine {
 
  private:
   enum { ENT_UPDATE }; // ACTIONS
-  enum { ON_PRESS, ON_RELEASE = 8, CONN_MAX = 16 }; // CONNECTORS
+  enum { ON_PRESS, ON_RELEASE = 1, CONN_MAX = 2 }; // CONNECTORS
   atm_connector connectors[CONN_MAX];
   int event( int id ); 
   void action( int id );

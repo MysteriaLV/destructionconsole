@@ -95,50 +95,50 @@ int Atm_mcp_input::state(void) {
  */
 
 /*
- * onPress() push connector variants ( slots 8, autostore 0, broadcast 0 )
+ * onPress() push connector variants ( slots 1, autostore 0, broadcast 0 )
  */
 
 Atm_mcp_input &Atm_mcp_input::onPress(Machine &machine, int event) {
-	onPush(connectors, ON_PRESS, 0, 8, 1, machine, event);
+	onPush(connectors, ON_PRESS, 0, 1, 1, machine, event);
 	return *this;
 }
 
 Atm_mcp_input &Atm_mcp_input::onPress(atm_cb_push_t callback, int idx) {
-	onPush(connectors, ON_PRESS, 0, 8, 1, callback, idx);
+	onPush(connectors, ON_PRESS, 0, 1, 1, callback, idx);
 	return *this;
 }
 
 Atm_mcp_input &Atm_mcp_input::onPress(int sub, Machine &machine, int event) {
-	onPush(connectors, ON_PRESS, sub, 8, 0, machine, event);
+	onPush(connectors, ON_PRESS, sub, 1, 0, machine, event);
 	return *this;
 }
 
 Atm_mcp_input &Atm_mcp_input::onPress(int sub, atm_cb_push_t callback, int idx) {
-	onPush(connectors, ON_PRESS, sub, 8, 0, callback, idx);
+	onPush(connectors, ON_PRESS, sub, 1, 0, callback, idx);
 	return *this;
 }
 
 /*
- * onRelease() push connector variants ( slots 8, autostore 0, broadcast 0 )
+ * onRelease() push connector variants ( slots 1, autostore 0, broadcast 0 )
  */
 
 Atm_mcp_input &Atm_mcp_input::onRelease(Machine &machine, int event) {
-	onPush(connectors, ON_RELEASE, 0, 8, 1, machine, event);
+	onPush(connectors, ON_RELEASE, 0, 1, 1, machine, event);
 	return *this;
 }
 
 Atm_mcp_input &Atm_mcp_input::onRelease(atm_cb_push_t callback, int idx) {
-	onPush(connectors, ON_RELEASE, 0, 8, 1, callback, idx);
+	onPush(connectors, ON_RELEASE, 0, 1, 1, callback, idx);
 	return *this;
 }
 
 Atm_mcp_input &Atm_mcp_input::onRelease(int sub, Machine &machine, int event) {
-	onPush(connectors, ON_RELEASE, sub, 8, 0, machine, event);
+	onPush(connectors, ON_RELEASE, sub, 1, 0, machine, event);
 	return *this;
 }
 
 Atm_mcp_input &Atm_mcp_input::onRelease(int sub, atm_cb_push_t callback, int idx) {
-	onPush(connectors, ON_RELEASE, sub, 8, 0, callback, idx);
+	onPush(connectors, ON_RELEASE, sub, 1, 0, callback, idx);
 	return *this;
 }
 
