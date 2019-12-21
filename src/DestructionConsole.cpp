@@ -12,7 +12,6 @@ Adafruit_MCP23017 mcp4;
 Adafruit_MCP23017 mcp5;
 Adafruit_MCP23017 mcp6;
 Atm_timer countdown;
-uint8_t ledId = 0;
 
 #define W(idx, button) ((idx)*16 + (button))
 
@@ -39,7 +38,8 @@ Adafruit_MCP23017 *mcp_by_idx(byte idx) {
 }
 
 
-void process_button(byte wMapping, byte up) {
+void process_button(int idx, int button, int up) {
+    byte wMapping = button_led_mappings[idx][button];
     byte chip_number = (byte) wMapping / 16;
     byte chip_pin_number = wMapping % 16;
     Serial.print(F("Mapping: "));
@@ -53,40 +53,14 @@ void process_button(byte wMapping, byte up) {
         Serial.println(F("Bad chip number!!!"));
         return;
     }
-    mcp_by_idx(chip_number)->digitalWrite(chip_pin_number, up);
 
-    if (up)
+    if (up) {
+        uint8_t state = mcp_by_idx(chip_number)->digitalRead(chip_pin_number);
+        mcp_by_idx(chip_number)->digitalWrite(chip_pin_number, (uint8_t) !state);
         led.on();
+    }
     else
         led.off();
-}
-
-void process_button_0(int idx, int button, int up) {
-    byte wMapping = button_led_mappings[0][button];
-    Serial.print(F("process_button_0 "));
-    Serial.println(button);
-    process_button(wMapping, (byte) up);
-}
-
-void process_button_1(int idx, int button, int up) {
-    byte wMapping = button_led_mappings[1][button];
-    Serial.print(F("process_button_1 "));
-    Serial.println(button);
-    process_button(wMapping, (byte) up);
-}
-
-void process_button_2(int idx, int button, int up) {
-    byte wMapping = button_led_mappings[2][button];
-    Serial.print(F("process_button_2 "));
-    Serial.println(button);
-    process_button(wMapping, (byte) up);
-}
-
-void process_button_3(int idx, int button, int up) {
-    byte wMapping = button_led_mappings[3][button];
-    Serial.print(F("process_button_3 "));
-    Serial.println(button);
-    process_button(wMapping, (byte) up);
 }
 
 #pragma clang diagnostic push
@@ -116,31 +90,17 @@ void setup() {
         mcp5.pinMode(i, OUTPUT);
         mcp6.pinMode(i, OUTPUT);
 
-        mcp4.digitalWrite(i, HIGH);
-        mcp5.digitalWrite(i, HIGH);
-        mcp6.digitalWrite(i, HIGH);
+        mcp4.digitalWrite(i, LOW);
+        mcp5.digitalWrite(i, LOW);
+        mcp6.digitalWrite(i, LOW);
     }
 
-    mcp_input[0].begin(0)
-            .onPress(process_button_0)
-            .onRelease(process_button_0);
-    mcp_input[1].begin(1)
-            .onPress(process_button_1)
-            .onRelease(process_button_1);
-    mcp_input[2].begin(2)
-            .onPress(process_button_2)
-            .onRelease(process_button_2);
-    mcp_input[3].begin(3)
-            .onPress(process_button_3)
-            .onRelease(process_button_3);
-
-    /*for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
+    for (uint8_t i = 0; i < MCP_IN_COUNT; i++) {
         Serial.println(i);
         mcp_input[i].begin(i)
                 .onPress(process_button, i)
                 .onRelease(process_button, i);
     }
-*/
 
 #ifdef MY_TEST_MODE
     door.blink(1000, 10000).start();
