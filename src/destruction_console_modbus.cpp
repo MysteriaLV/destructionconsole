@@ -23,7 +23,7 @@ ModbusSerial mb;
 #define SSerialTxControl 6   //RS485 Direction control
 #define SSerialRX        8  //Serial Receive pin
 #define SSerialTX        9  //Serial Transmit pin
-	AltSoftSerial RS485Serial(111, 222); // RX, TX hardcoded
+    AltSoftSerial RS485Serial(111, 222); // RX, TX hardcoded
 #endif
 
 #ifdef USE_SERIAL1
@@ -45,83 +45,76 @@ ModbusIP mb;
 
 // Action handler. Add all your actions mapped by action_id in rs485_node of Lua script
 void process_actions() {
-	if (mb.Hreg(ACTIONS) == 0)
-		return;
+    if (mb.Hreg(ACTIONS) == 0)
+        return;
 
-	switch (mb.Hreg(ACTIONS)) {
-		case 1 : // Put here code for Reset
-//			Serial.println("[Reset] action fired");
-            door.off();
-            alarm_lights.off();
-            backlight.off();
-			break;
-		case 2 : // Put here code for Activated
-//			Serial.println("[Activated] action fired");
-            door.on();
-            alarm_lights.off();
-            backlight.on();
-			break;
-		case 3 : // Put here code for Force_complete
-//			Serial.println("[Force_complete] action fired");
-            alarm_lights.on();
-			break;
-		default:
-			break;
-	}
+    switch (mb.Hreg(ACTIONS)) {
+        case 1 : // Put here code for Reset
+            Serial.println(F("[Reset] action fired"));
+            puzzle_controller.trigger(Atm_step::EVT_LINEAR);
+            puzzle_controller.trigger(puzzle_controller.EVT_STEP);
+            break;
+        case 2 :  // Put here code for Force_step
+            Serial.println(F("[Force_step] action fired"));
+            puzzle_controller.trigger(puzzle_controller.EVT_STEP);
+            break;
+        default:
+            break;
+    }
 
-	// Signal that action was processed
-	mb.Hreg(ACTIONS, 0);
+    // Signal that action was processed
+    mb.Hreg(ACTIONS, 0);
 }
 
 void modbus_set(word event, word value) {
-	mb.Hreg(event, value);
+    mb.Hreg(event, value);
 }
 
 void modbus_setup() {
-	Serial.println(F("DESTRUCTION_CONSOLE:7"));
+    Serial.println(F("DESTRUCTION_CONSOLE:7"));
 
 #ifdef EMULATE_RS3485_POWER_PINS
-	pinMode(SSerialVCC, OUTPUT);
-	digitalWrite(SSerialVCC, HIGH);
-	pinMode(SSerialGND, OUTPUT);
-	digitalWrite(SSerialGND, LOW);
-	delay(10);
+    pinMode(SSerialVCC, OUTPUT);
+    digitalWrite(SSerialVCC, HIGH);
+    pinMode(SSerialGND, OUTPUT);
+    digitalWrite(SSerialGND, LOW);
+    delay(10);
 #endif
 
 #ifndef USE_ESP8266_TCP
-	mb.config(&RS485Serial, 31250, SSerialTxControl);
-	mb.setSlaveId(7);
+    mb.config(&RS485Serial, 31250, SSerialTxControl);
+    mb.setSlaveId(7);
 #else
-	mb.config("Aliens Room", "123123123");
-	WiFi.config(IPAddress(7), IPAddress(), IPAddress(), IPAddress(), IPAddress());
+    mb.config("Aliens Room", "123123123");
+    WiFi.config(IPAddress(7), IPAddress(), IPAddress(), IPAddress(), IPAddress());
 
-	Serial.print("Connecting to Aliens Room ");
-	  while (WiFi.status() != WL_CONNECTED) {
-		delay(500);
-		Serial.print(".");
-	  }
+    Serial.print("Connecting to Aliens Room ");
+      while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+      }
 
-	  Serial.println(" CONNECTED!");
-	  Serial.print("IP address: ");
-	  Serial.println(WiFi.localIP());
+      Serial.println(" CONNECTED!");
+      Serial.print("IP address: ");
+      Serial.println(WiFi.localIP());
 
-	  Serial.print("Netmask: ");
-	  Serial.println(WiFi.subnetMask());
+      Serial.print("Netmask: ");
+      Serial.println(WiFi.subnetMask());
 
-	  Serial.print("Gateway: ");
-	  Serial.println(WiFi.gatewayIP());
+      Serial.print("Gateway: ");
+      Serial.println(WiFi.gatewayIP());
 #endif
 
-	mb.addHreg(ACTIONS, 0);
-	mb.addHreg(ENTERED_CODE, 0);
+    mb.addHreg(ACTIONS, 0);
+    mb.addHreg(ENTERED_CODE, 0);
 }
 
 
 void modbus_loop() {
-	mb.task();              // not implemented yet: mb.Hreg(TOTAL_ERRORS, mb.task());
-	process_actions();
+    mb.task();              // not implemented yet: mb.Hreg(TOTAL_ERRORS, mb.task());
+    process_actions();
 
-	// Notify main console of local events
-	// mb.Hreg(ENTERED_CODE, 1);
+    // Notify main console of local events
+    // mb.Hreg(ENTERED_CODE, 1);
 
 }

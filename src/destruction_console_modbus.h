@@ -11,7 +11,7 @@ extern void modbus_setup();
 extern void modbus_loop();
 extern void modbus_set(word event, word value);
 
-extern Atm_led led, door, alarm_lights, backlight;
+extern Atm_step puzzle_controller;
 
 //////////////// registers of DESTRUCTION_CONSOLE ///////////////////
 enum

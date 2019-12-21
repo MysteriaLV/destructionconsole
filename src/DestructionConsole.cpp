@@ -12,8 +12,15 @@ Adafruit_MCP23017 mcp4;
 Adafruit_MCP23017 mcp5;
 Adafruit_MCP23017 mcp6;
 Atm_timer countdown;
+Atm_step puzzle_controller;
 
 #define W(idx, button) ((idx)*16 + (button))
+#define FX_CTRL W(3, 6)
+#define SENHANCE W(3, 8)
+#define PANIC W(1, 0)
+
+byte correct_button_seq[] = {FX_CTRL, SENHANCE, W(2, 3), W(1, 4), W(3, 5), PANIC};     // 2<=>3!!!
+byte button_seq_position = 0;
 
 byte button_led_mappings[][16] = {
         {W(0, 0), W(0, 1),  W(0, 2),  W(0, 3), W(0, 4),/*5*/W(0, 5),  W(0, 6), W(0, 7), W(0, 8),  W(0, 9),/*10*/W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 0
@@ -37,39 +44,98 @@ Adafruit_MCP23017 *mcp_by_idx(byte idx) {
     }
 }
 
+void puzzle_init(int idx, int v, int up) {
+    modbus_set(ENTERED_CODE, 0);
+    door.off();
+    alarm_lights.off();
+    backlight.off();
+    button_seq_position = 0;
+}
+
+void puzzle_activated(int idx, int v, int up) {
+    door.on();
+    alarm_lights.off();
+    backlight.on();
+    button_seq_position = 0;
+}
+
+void puzzle_completed(int idx, int v, int up) {
+    modbus_set(ENTERED_CODE, 1);
+    alarm_lights.on();
+    for (uint8_t i = 0; i < 16; i++) {
+        mcp4.digitalWrite(i, HIGH);
+        mcp5.digitalWrite(i, HIGH);
+        mcp6.digitalWrite(i, HIGH);
+    }
+}
 
 void process_button(int idx, int button, int up) {
+    if (puzzle_controller.state() != 1)
+        return;
+
     byte wMapping = button_led_mappings[idx][button];
     byte chip_number = (byte) wMapping / 16;
     byte chip_pin_number = wMapping % 16;
-    Serial.print(F("Mapping: "));
-    Serial.print(wMapping);
-    Serial.print(F(" chip_number: "));
-    Serial.print(chip_number);
-    Serial.print(F(" chip_pin_number "));
-    Serial.println(chip_pin_number);
+//    Serial.print(F("Mapping: "));
+//    Serial.print(wMapping);
+//    Serial.print(F(" chip_number: "));
+//    Serial.print(chip_number);
+//    Serial.print(F(" chip_pin_number "));
+//    Serial.println(chip_pin_number);
 
-    if (chip_number < 4 || chip_number > 6) {
-        Serial.println(F("Bad chip number!!!"));
-        return;
-    }
 
     if (up) {
-        uint8_t state = mcp_by_idx(chip_number)->digitalRead(chip_pin_number);
-        mcp_by_idx(chip_number)->digitalWrite(chip_pin_number, (uint8_t) !state);
         led.on();
-    }
-    else
+        if (chip_number >= 4 && chip_number <= 6) {
+            uint8_t state = mcp_by_idx(chip_number)->digitalRead(chip_pin_number);
+            mcp_by_idx(chip_number)->digitalWrite(chip_pin_number, (uint8_t) !state);
+        } else {
+//            Serial.println(F("Bad chip number!!!"));
+        }
+
+        int btn_code = W(idx, button);
+//        Serial.print(F(" btn_code "));
+//        Serial.println(btn_code);
+
+        if (btn_code == correct_button_seq[button_seq_position]) {
+            Serial.print(F("Correctly guessed N"));
+            Serial.println(button_seq_position++);
+        } else {
+            Serial.print(F("Wrong button "));
+            Serial.println(btn_code);
+            button_seq_position = 0;
+
+            // Verify if it is correct button #0
+            if (btn_code == correct_button_seq[button_seq_position]) {
+                Serial.print(F("...but guessed N"));
+                Serial.println(button_seq_position++);
+            }
+
+            if (btn_code == PANIC){
+                // Turn off all leds
+                for (uint8_t i = 0; i < 16; i++) {
+                    mcp4.digitalWrite(i, LOW);
+                    mcp5.digitalWrite(i, LOW);
+                    mcp6.digitalWrite(i, LOW);
+                }
+            }
+        }
+
+        if (button_seq_position == sizeof(correct_button_seq))
+            // advance to completed
+            puzzle_controller.trigger(puzzle_controller.EVT_STEP);
+
+    } else
         led.off();
 }
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+
 void setup() {
     Serial.begin(115200);
     Serial.println(freeMemory());
 
-    modbus_setup();
     led.begin(LED_BUILTIN);
 
     door.begin(12, false).off();
@@ -134,6 +200,18 @@ void setup() {
             .start();
 #endif
 
+    puzzle_controller.begin()
+            .onStep(0, puzzle_init)
+            .onStep(1, puzzle_activated)
+            .onStep(2, puzzle_completed);
+
+    // Start puzzle
+    puzzle_controller.trigger(puzzle_controller.EVT_STEP);
+
+    // [debug] advance to activated
+    puzzle_controller.trigger(puzzle_controller.EVT_STEP);
+
+    modbus_setup();
     Serial.println(F("...setup done"));
 
     for (int i = 1; i < 20; i++) {
