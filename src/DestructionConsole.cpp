@@ -15,20 +15,18 @@ Atm_timer countdown;
 Atm_step puzzle_controller;
 
 #define W(idx, button) ((idx)*16 + (button))
-#define FX_CTRL W(3, 6)
-#define SENHANCE W(3, 8)
+#define FX_CTRL W(2, 6)
+#define SENHANCE W(2, 8)
 #define PANIC W(1, 0)
 
-byte correct_button_seq[] = {FX_CTRL, SENHANCE, W(2, 3), W(1, 4), W(3, 5), PANIC};     // 2<=>3!!!
+byte correct_button_seq[] = {FX_CTRL, SENHANCE, W(3, 3), W(1, 4), W(2, 5), PANIC};
 byte button_seq_position = 0;
 
 byte button_led_mappings[][16] = {
         {W(0, 0), W(0, 1),  W(0, 2),  W(0, 3), W(0, 4),/*5*/W(0, 5),  W(0, 6), W(0, 7), W(0, 8),  W(0, 9),/*10*/W(0, 10), W(0, 11), W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 0
-        {W(4, 6), W(0, 1),  W(0, 2),  W(4, 7), W(0, 4),     W(4, 2),  W(4, 3), W(0, 7), W(4, 12), W(0, 9),      W(4, 5),  W(4, 4),  W(6, 0),  W(0, 13), W(4, 0),  W(6, 0)}, // 1
+        {W(4, 6), W(0, 1),  W(0, 2),  W(4, 7), W(4, 13),    W(4, 2),  W(4, 3), W(0, 7), W(4, 12), W(0, 9),      W(4, 5),  W(4, 4),  W(6, 0),  W(4, 0),  W(0, 14),  W(6, 0)}, // 1
+        {W(5, 9), W(5, 10), W(5, 0),  W(5, 8), W(5, 11),    W(5, 12), W(5, 3), W(5, 7), W(0, 8),  W(5, 2),      W(5, 1),  W(0, 11), W(5, 11), W(0, 13), W(5, 5),  W(5, 6)}, // 2
         {W(0, 0), W(3, 0),  W(5, 13), W(0, 3), W(0, 4),     W(4, 7),  W(6, 1), W(0, 7), W(0, 8),  W(6, 3),      W(0, 10), W(3, 0),  W(0, 12), W(0, 13), W(0, 14), W(0, 15)},// 3
-        {W(5, 9), W(5, 10), W(5, 0),  W(5, 8), W(5, 11),    W(5, 12), W(5, 3), W(5, 7), W(0, 8),  W(5, 2),      W(5, 1),  W(0, 11), W(0, 12), W(0, 13), W(5, 5),  W(5, 6)}, // 2
-
-        // Я поменял местами 2 и 3, потому что я на плате реально поменял их местами
 };
 
 Adafruit_MCP23017 *mcp_by_idx(byte idx) {
@@ -82,12 +80,12 @@ void process_button(int idx, int button, int up) {
     byte wMapping = button_led_mappings[idx][button];
     byte chip_number = (byte) wMapping / 16;
     byte chip_pin_number = wMapping % 16;
-//    Serial.print(F("Mapping: "));
-//    Serial.print(wMapping);
-//    Serial.print(F(" chip_number: "));
-//    Serial.print(chip_number);
-//    Serial.print(F(" chip_pin_number "));
-//    Serial.println(chip_pin_number);
+   Serial.print(F("Mapping: "));
+   Serial.print(wMapping);
+   Serial.print(F(" chip_number: "));
+   Serial.print(chip_number);
+   Serial.print(F(" chip_pin_number "));
+   Serial.println(chip_pin_number);
 
 
     if (up) {
@@ -100,8 +98,8 @@ void process_button(int idx, int button, int up) {
         }
 
         int btn_code = W(idx, button);
-//        Serial.print(F(" btn_code "));
-//        Serial.println(btn_code);
+       Serial.print(F(" btn_code "));
+       Serial.println(btn_code);
 
         if (btn_code == correct_button_seq[button_seq_position]) {
             Serial.print(F("Correctly guessed N"));
