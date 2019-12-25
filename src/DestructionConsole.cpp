@@ -15,11 +15,20 @@ Atm_timer countdown;
 Atm_step puzzle_controller;
 
 #define W(idx, button) ((idx)*16 + (button))
+#define FX 33
 #define FX_CTRL W(2, 6)
 #define SENHANCE W(2, 8)
+#define SHIELD_CONTROL W(2, 5)
+#define ENGAGE 47
+#define BLASTERS 24
+#define BOOMSTICK 26
+#define PHASERS 20
+#define NUKES 27
+#define BTN_SET 42
+#define BTN_LEVEL 35
 #define PANIC W(1, 0)
 
-byte correct_button_seq[] = {FX_CTRL, SENHANCE, W(3, 3), W(1, 4), W(2, 5), PANIC};
+byte correct_button_seq[] = {FX, FX_CTRL, BLASTERS, BOOMSTICK, NUKES, PHASERS, SHIELD_CONTROL, ENGAGE, BTN_SET, BTN_LEVEL, PANIC};
 byte button_seq_position = 0;
 
 byte button_led_mappings[][16] = {
