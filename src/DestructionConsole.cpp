@@ -28,7 +28,7 @@ Atm_step puzzle_controller;
 #define BTN_LEVEL 35
 #define PANIC W(1, 0)
 
-byte correct_button_seq[] = {FX, FX_CTRL, BLASTERS, BOOMSTICK, NUKES, PHASERS, SHIELD_CONTROL, ENGAGE, BTN_SET, BTN_LEVEL, PANIC};
+byte correct_button_seq[] = {FX, BLASTERS, FX_CTRL, BOOMSTICK, NUKES, PHASERS, SHIELD_CONTROL, ENGAGE, BTN_SET, BTN_LEVEL, PANIC};
 byte button_seq_position = 0;
 
 byte button_led_mappings[][16] = {
